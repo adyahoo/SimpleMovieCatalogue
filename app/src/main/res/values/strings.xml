@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">MyMovieCatalogue</string>
+    <string name="tab_title_1">Movies</string>
+    <string name="tab_title_2">TV Shows</string>
+    <string name="data_title">Title</string>
+    <string name="data_date">Date</string>
+    <string name="data_genre">Genre</string>
+    <string name="title_director">Director</string>
+    <string name="data_director">Director</string>
+    <string name="title_overview">Overview</string>
+    <string name="data_overview">Overview</string>
+    <string name="empty_data">No Data Found</string>
+    <string name="film_poster">Film Poster</string>
+    <string name="text_creator">Creator</string>
+</resources>
