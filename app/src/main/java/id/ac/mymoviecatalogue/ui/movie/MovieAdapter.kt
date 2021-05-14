@@ -5,15 +5,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import id.ac.mymoviecatalogue.BuildConfig
+import id.ac.mymoviecatalogue.R
 import id.ac.mymoviecatalogue.data.MoviesEntity
 import id.ac.mymoviecatalogue.databinding.ItemDataBinding
 import id.ac.mymoviecatalogue.ui.detail.DetailActivity
 
 class MovieAdapter: RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
     private var listMovie = ArrayList<MoviesEntity>()
-    companion object{
-        const val EXTRA_MOVIE = "movie"
-    }
 
     fun setMovie(movies: List<MoviesEntity>) {
         listMovie.clear()
@@ -23,19 +22,16 @@ class MovieAdapter: RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
 
     inner class MovieViewHolder(private val binding: ItemDataBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(movie: MoviesEntity) {
+            val moviePoster = BuildConfig.IMAGE_BASE_URL+movie.poster
             with(binding) {
                 tvTitle.text = movie.title
-                tvGenre.text = movie.genre
+                tvDate.text = itemView.context.getString(R.string.release_date_rv, movie.releaseDate)
                 Glide.with(itemView.context)
-                    .load(movie.poster)
+                    .load(moviePoster)
                     .into(civPoster)
             }
 
             itemView.setOnClickListener {
-//                val intent = Intent(itemView.context, DetailActivity::class.java)
-//                intent.putExtra(DetailActivity.EXTRA_TYPE, EXTRA_MOVIE)
-//                intent.putExtra(DetailActivity.EXTRA_MOVIE_ID, movie.movieId)
-//                itemView.context.startActivity(intent)
 
                 val intent = Intent(itemView.context, DetailActivity::class.java).apply {
                     putExtra(DetailActivity.EXTRA_TYPE, EXTRA_MOVIE)
@@ -57,5 +53,9 @@ class MovieAdapter: RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
 
     override fun getItemCount(): Int {
         return listMovie.size
+    }
+
+    companion object{
+        const val EXTRA_MOVIE = "movie"
     }
 }

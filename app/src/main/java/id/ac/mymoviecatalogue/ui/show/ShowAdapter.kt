@@ -5,18 +5,16 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import id.ac.mymoviecatalogue.BuildConfig
+import id.ac.mymoviecatalogue.R
 import id.ac.mymoviecatalogue.data.TvShowEntity
 import id.ac.mymoviecatalogue.databinding.ItemDataBinding
 import id.ac.mymoviecatalogue.ui.detail.DetailActivity
 
 class ShowAdapter: RecyclerView.Adapter<ShowAdapter.ShowViewHolder>() {
     private var listShows = ArrayList<TvShowEntity>()
-    companion object{
-        const val EXTRA_SHOW = "show"
-    }
 
     fun setShow(tvShow: List<TvShowEntity>) {
-        if(tvShow == null) return
         listShows.clear()
         listShows.addAll(tvShow)
         notifyDataSetChanged()
@@ -26,9 +24,9 @@ class ShowAdapter: RecyclerView.Adapter<ShowAdapter.ShowViewHolder>() {
         fun bind(tvShow: TvShowEntity) {
             with(binding) {
                 tvTitle.text = tvShow.title
-                tvGenre.text = tvShow.genre
+                tvDate.text = itemView.context.getString(R.string.release_date_rv, tvShow.releaseDate)
                 Glide.with(itemView.context)
-                    .load(tvShow.poster)
+                    .load(BuildConfig.IMAGE_BASE_URL+tvShow.poster)
                     .into(civPoster)
             }
 
@@ -52,5 +50,9 @@ class ShowAdapter: RecyclerView.Adapter<ShowAdapter.ShowViewHolder>() {
 
     override fun getItemCount(): Int {
         return listShows.size
+    }
+
+    companion object{
+        const val EXTRA_SHOW = "show"
     }
 }

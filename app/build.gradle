@@ -11,11 +11,18 @@ android {
     defaultConfig {
         applicationId "id.ac.mymoviecatalogue"
         minSdkVersion 23
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField ("String", "MOVIE_API_KEY", '"3e0d352c47e2e83c30ef6c344046a721"')
+        buildConfigField ("String", "IMAGE_BASE_URL", '"https://image.tmdb.org/t/p/w500"')
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
 
     buildTypes {
@@ -36,6 +43,17 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    sourceSets {
+        test {
+            assets {
+                srcDirs 'src\\main\\assets', 'src\\test\\assets'
+            }
+        }
+    }
+
+    sourceSets.each {
+        it.java.srcDirs += "src/$it.name/kotlin"
+    }
 }
 
 dependencies {
@@ -48,12 +66,19 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     //testing
-    testImplementation 'junit:junit:4.+'
+    testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation "androidx.test:runner:$androidTestVersion"
     androidTestImplementation "androidx.test:rules:$androidTestVersion"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
+    testImplementation "com.squareup.okhttp3:mockwebserver:4.7.2"
+    testImplementation "org.mockito:mockito-core:$mockitoVersion"
+    testImplementation "org.mockito:mockito-inline:$mockitoVersion"
+    testImplementation "androidx.arch.core:core-testing:$androidCoreTestVersion"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockitoKotlinVersion"
+    implementation 'com.android.support.test.espresso:espresso-idling-resource:3.0.2'
+    testImplementation 'org.json:json:20210307'
 
     //ui
     implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
@@ -61,4 +86,9 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1"
     implementation "androidx.activity:activity-ktx:1.2.2"
     implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+    //network
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
 }

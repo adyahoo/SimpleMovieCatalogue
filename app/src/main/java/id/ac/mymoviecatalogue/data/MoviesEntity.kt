@@ -1,11 +1,11 @@
 package id.ac.mymoviecatalogue.data
 
 data class MoviesEntity(
-    val movieId: String,
-    val title: String,
-    val releaseDate: String,
-    val overview: String,
-    val genre: String,
-    val director: String,
-    val poster: Int
+    var movieId: Int,
+    var title: String,
+    var releaseDate: String,
+    var overview: String,
+    var genre: String?,
+    var production: String?,
+    var poster: String
 )

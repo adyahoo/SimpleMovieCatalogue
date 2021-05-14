@@ -1,60 +1,78 @@
 package id.ac.mymoviecatalogue.ui.home
 
 import androidx.recyclerview.widget.RecyclerView
+import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import id.ac.mymoviecatalogue.BuildConfig
 import id.ac.mymoviecatalogue.R
-import id.ac.mymoviecatalogue.utils.DataDummy
+import id.ac.mymoviecatalogue.data.source.remote.api.ApiConfig
+import id.ac.mymoviecatalogue.data.source.remote.response.MovieDetailResponse
+import id.ac.mymoviecatalogue.data.source.remote.response.TvShowDetailResponse
+import id.ac.mymoviecatalogue.utils.EspressoIdlingResources
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class MainActivityTest {
-    private val dummyMovie = DataDummy.getMovies()
-    private val dummyShow = DataDummy.getShows()
+    private val dummyMovie = ApiConfig().getApiService().getListMovies(BuildConfig.MOVIE_API_KEY).execute().body()?.results
+    private val movieId = dummyMovie!![0].id
+    private val detailMovie = ApiConfig().getApiService().getMovieDetail(movieId, BuildConfig.MOVIE_API_KEY).execute().body() as MovieDetailResponse
+
+    private val dummyShow = ApiConfig().getApiService().getListTvShows(BuildConfig.MOVIE_API_KEY).execute().body()?.results
+    private val showId = dummyShow!![0].id
+    private val detailShow = ApiConfig().getApiService().getTvShowDetail(showId, BuildConfig.MOVIE_API_KEY).execute().body() as TvShowDetailResponse
 
     @get:Rule
     var activityRule = ActivityScenarioRule(MainActivity::class.java)
 
+    @Before
+    fun setUp() {
+        ActivityScenario.launch(MainActivity::class.java)
+        IdlingRegistry.getInstance().register(EspressoIdlingResources.idlingResource)
+    }
+
+    @After
+    fun tearDown() {
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResources.idlingResource)
+    }
+
     @Test
     fun loadMovies() {
         onView(withId(R.id.rv_movie)).check(matches(isDisplayed()))
-        onView(withId(R.id.rv_movie)).perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(dummyMovie.size))
+        onView(withId(R.id.rv_movie)).perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(dummyMovie!!.size))
     }
 
     @Test
     fun loadDetailMovie() {
+        val genres = ArrayList<String>()
+        val productionCompanies = ArrayList<String>()
+
         onView(withId(R.id.rv_movie)).perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(0, click()))
         onView(withId(R.id.tv_title)).check(matches(isDisplayed()))
-        onView(withId(R.id.tv_title)).check(matches(withText(dummyMovie[0].title)))
+        onView(withId(R.id.tv_title)).check(matches(withText(detailMovie.title)))
         onView(withId(R.id.tv_date)).check(matches(isDisplayed()))
-        onView(withId(R.id.tv_date)).check(matches(withText(dummyMovie[0].releaseDate)))
-        onView(withId(R.id.tv_genre)).check(matches(isDisplayed()))
-        onView(withId(R.id.tv_genre)).check(matches(withText(dummyMovie[0].genre)))
-        onView(withId(R.id.tv_director)).check(matches(isDisplayed()))
-        onView(withId(R.id.tv_director)).check(matches(withText(dummyMovie[0].director)))
-        onView(withId(R.id.tv_overview)).check(matches(isDisplayed()))
-        onView(withId(R.id.tv_overview)).check(matches(withText(dummyMovie[0].overview)))
-        onView(withId(R.id.iv_poster)).check(matches(isDisplayed()))
-    }
+        onView(withId(R.id.tv_date)).check(matches(withText(detailMovie.releaseDate)))
 
-    @Test
-    fun loadDetailTvShow() {
-        onView(withText("TV SHOWS")).perform(click())
-        onView(withId(R.id.rv_show)).perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(0, click()))
-        onView(withId(R.id.tv_title)).check(matches(isDisplayed()))
-        onView(withId(R.id.tv_title)).check(matches(withText(dummyShow[0].title)))
-        onView(withId(R.id.tv_date)).check(matches(isDisplayed()))
-        onView(withId(R.id.tv_date)).check(matches(withText(dummyShow[0].releaseYear)))
+        for (genre in detailMovie.genres) {
+            genres.add(genre.name)
+        }
         onView(withId(R.id.tv_genre)).check(matches(isDisplayed()))
-        onView(withId(R.id.tv_genre)).check(matches(withText(dummyShow[0].genre)))
-        onView(withId(R.id.tv_director)).check(matches(isDisplayed()))
-        onView(withId(R.id.tv_director)).check(matches(withText(dummyShow[0].creator)))
+        onView(withId(R.id.tv_genre)).check(matches(withText(genres.toString().replace("[","").replace("]",""))))
+
+        for (production in detailMovie.productionCompanies) {
+            productionCompanies.add(production.name)
+        }
+        onView(withId(R.id.tv_production)).check(matches(isDisplayed()))
+        onView(withId(R.id.tv_production)).check(matches(withText(productionCompanies.toString().replace("[","").replace("]",""))))
         onView(withId(R.id.tv_overview)).check(matches(isDisplayed()))
-        onView(withId(R.id.tv_overview)).check(matches(withText(dummyShow[0].overview)))
+        onView(withId(R.id.tv_overview)).check(matches(withText(detailMovie.overview)))
         onView(withId(R.id.iv_poster)).check(matches(isDisplayed()))
     }
 
@@ -62,6 +80,35 @@ class MainActivityTest {
     fun loadTvShows() {
         onView(withText("TV SHOWS")).perform(click())
         onView(withId(R.id.rv_show)).check(matches(isDisplayed()))
-        onView(withId(R.id.rv_show)).perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(dummyShow.size))
+        onView(withId(R.id.rv_show)).perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(dummyMovie!!.size))
+    }
+
+    @Test
+    fun loadDetailTvShow() {
+        val genres = ArrayList<String>()
+        val creators = ArrayList<String>()
+
+        onView(withText("TV SHOWS")).perform(click())
+        onView(withId(R.id.rv_show)).perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(0, click()))
+        onView(withId(R.id.tv_title)).check(matches(isDisplayed()))
+        onView(withId(R.id.tv_title)).check(matches(withText(detailShow.name)))
+        onView(withId(R.id.tv_date)).check(matches(isDisplayed()))
+        onView(withId(R.id.tv_date)).check(matches(withText(detailShow.firstAirDate)))
+
+        for (genre in detailShow.genres) {
+            genres.add(genre.name)
+        }
+        onView(withId(R.id.tv_genre)).check(matches(isDisplayed()))
+        onView(withId(R.id.tv_genre)).check(matches(withText(genres.toString().replace("[","").replace("]",""))))
+
+        for (creator in detailShow.createdBy) {
+            creators.add(creator.name)
+        }
+        onView(withId(R.id.tv_production)).check(matches(isDisplayed()))
+        onView(withId(R.id.tv_production)).check(matches(withText(creators.toString().replace("[","").replace("]",""))))
+
+        onView(withId(R.id.tv_overview)).check(matches(isDisplayed()))
+        onView(withId(R.id.tv_overview)).check(matches(withText(detailShow.overview)))
+        onView(withId(R.id.iv_poster)).check(matches(isDisplayed()))
     }
 }

@@ -42,10 +42,10 @@
             app:layout_constraintEnd_toEndOf="parent"/>
 
         <TextView
-            android:id="@+id/tv_genre"
+            android:id="@+id/tv_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/data_genre"
+            android:text="@string/data_date"
             android:textSize="16sp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
