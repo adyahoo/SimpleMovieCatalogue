@@ -50,6 +50,7 @@ class ShowFragment : Fragment() {
 
             with(binding.rvShow) {
                 layoutManager = LinearLayoutManager(context)
+                setHasFixedSize(true)
                 adapter = showAdapter
             }
         }

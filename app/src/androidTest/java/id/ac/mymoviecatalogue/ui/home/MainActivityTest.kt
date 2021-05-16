@@ -3,12 +3,15 @@ package id.ac.mymoviecatalogue.ui.home
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
 import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.platform.app.InstrumentationRegistry
 import id.ac.mymoviecatalogue.BuildConfig
 import id.ac.mymoviecatalogue.R
 import id.ac.mymoviecatalogue.data.source.remote.api.ApiConfig
@@ -22,11 +25,13 @@ import org.junit.Test
 
 class MainActivityTest {
     private val dummyMovie = ApiConfig().getApiService().getListMovies(BuildConfig.MOVIE_API_KEY).execute().body()?.results
-    private val movieId = dummyMovie!![0].id
+    private val sortedDummyMovie = dummyMovie?.sortedBy { it.id }
+    private val movieId = sortedDummyMovie!![0].id
     private val detailMovie = ApiConfig().getApiService().getMovieDetail(movieId, BuildConfig.MOVIE_API_KEY).execute().body() as MovieDetailResponse
 
     private val dummyShow = ApiConfig().getApiService().getListTvShows(BuildConfig.MOVIE_API_KEY).execute().body()?.results
-    private val showId = dummyShow!![0].id
+    private val sortedDummyShow = dummyShow?.sortedBy { it.id }
+    private val showId = sortedDummyShow!![0].id
     private val detailShow = ApiConfig().getApiService().getTvShowDetail(showId, BuildConfig.MOVIE_API_KEY).execute().body() as TvShowDetailResponse
 
     @get:Rule
@@ -47,6 +52,16 @@ class MainActivityTest {
     fun loadMovies() {
         onView(withId(R.id.rv_movie)).check(matches(isDisplayed()))
         onView(withId(R.id.rv_movie)).perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(dummyMovie!!.size))
+    }
+
+    @Test
+    fun loadMoviesFavorite() {
+        onView(withId(R.id.rv_movie)).perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(0, click()))
+        onView(withId(R.id.action_favorite)).perform(click())
+        onView(isRoot()).perform(ViewActions.pressBack())
+        openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().targetContext)
+        onView(withText("Favorite Section")).perform(click())
+        onView(withId(R.id.rv_movie)).check(matches(isDisplayed()))
     }
 
     @Test
@@ -81,6 +96,18 @@ class MainActivityTest {
         onView(withText("TV SHOWS")).perform(click())
         onView(withId(R.id.rv_show)).check(matches(isDisplayed()))
         onView(withId(R.id.rv_show)).perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(dummyMovie!!.size))
+    }
+
+    @Test
+    fun loadTvShowsFavorite() {
+        onView(withText("TV SHOWS")).perform(click())
+        onView(withId(R.id.rv_show)).perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(0, click()))
+        onView(withId(R.id.action_favorite)).perform(click())
+        onView(isRoot()).perform(ViewActions.pressBack())
+        openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().targetContext)
+        onView(withText("Favorite Section")).perform(click())
+        onView(withText("TV SHOWS")).perform(click())
+        onView(withId(R.id.rv_show)).check(matches(isDisplayed()))
     }
 
     @Test

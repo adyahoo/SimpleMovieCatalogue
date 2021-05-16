@@ -1,13 +1,9 @@
 package id.ac.mymoviecatalogue.ui.detail
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import id.ac.mymoviecatalogue.data.FilmRepository
-import id.ac.mymoviecatalogue.data.source.local.entity.TvShowEntity
-import id.ac.mymoviecatalogue.data.source.remote.response.*
-import id.ac.mymoviecatalogue.vo.Resource
 
 class DetailViewModel(private val filmRepository: FilmRepository) : ViewModel() {
     val movieId = MutableLiveData<Int>()

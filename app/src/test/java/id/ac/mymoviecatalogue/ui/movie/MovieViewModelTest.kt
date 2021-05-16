@@ -2,12 +2,12 @@ package id.ac.mymoviecatalogue.ui.movie
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.*
+import androidx.paging.PagedList
 import com.nhaarman.mockitokotlin2.verify
-import id.ac.mymoviecatalogue.BuildConfig
 import id.ac.mymoviecatalogue.data.FilmRepository
-import id.ac.mymoviecatalogue.data.source.remote.api.ApiConfig
-import id.ac.mymoviecatalogue.data.source.remote.response.ResultsItemMovie
+import id.ac.mymoviecatalogue.data.source.local.entity.MoviesEntity
 import id.ac.mymoviecatalogue.ui.utils.ResponseFileReader
+import id.ac.mymoviecatalogue.vo.Resource
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONObject
@@ -35,7 +35,10 @@ class MovieViewModelTest {
     private lateinit var filmRepository: FilmRepository
 
     @Mock
-    private lateinit var observer: Observer<List<ResultsItemMovie>>
+    private lateinit var pagedList: PagedList<MoviesEntity>
+
+    @Mock
+    private lateinit var observer: Observer<Resource<PagedList<MoviesEntity>>>
 
     @Mock
     private lateinit var mockWebServer: MockWebServer
@@ -69,13 +72,14 @@ class MovieViewModelTest {
         mockWebServer.enqueue(response)
         val mockResponse = response.getBody()?.readUtf8()
 
-        val dummyMovies = ApiConfig().getApiService().getListMovies(BuildConfig.MOVIE_API_KEY).execute().body()?.results
-        val movies = MutableLiveData<List<ResultsItemMovie>>()
+        val dummyMovies = Resource.success(pagedList)
+        `when`(dummyMovies.data?.size).thenReturn(20)
+        val movies = MutableLiveData<Resource<PagedList<MoviesEntity>>>()
         movies.value = dummyMovies
 
         `when`(filmRepository.getListMovies()).thenReturn(movies)
-        val moviesEntity = viewModel.getMovies().value
-        verify<FilmRepository>(filmRepository).getListMovies()
+        val moviesEntity = viewModel.getMovies().value?.data
+        verify(filmRepository).getListMovies()
 
         assertNotNull(moviesEntity)
         assertEquals(mockResponse?.let { getMockedJsonSize(it) }, moviesEntity?.size)

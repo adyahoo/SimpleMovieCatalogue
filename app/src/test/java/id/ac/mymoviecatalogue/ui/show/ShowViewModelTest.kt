@@ -3,12 +3,12 @@ package id.ac.mymoviecatalogue.ui.show
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.paging.PagedList
 import com.nhaarman.mockitokotlin2.verify
-import id.ac.mymoviecatalogue.BuildConfig
 import id.ac.mymoviecatalogue.data.FilmRepository
-import id.ac.mymoviecatalogue.data.source.remote.api.ApiConfig
-import id.ac.mymoviecatalogue.data.source.remote.response.ResultsItemTvShow
+import id.ac.mymoviecatalogue.data.source.local.entity.TvShowEntity
 import id.ac.mymoviecatalogue.ui.utils.ResponseFileReader
+import id.ac.mymoviecatalogue.vo.Resource
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONObject
@@ -35,7 +35,10 @@ class ShowViewModelTest {
     private lateinit var filmRepository: FilmRepository
 
     @Mock
-    private lateinit var observer: Observer<List<ResultsItemTvShow>>
+    private lateinit var observer: Observer<Resource<PagedList<TvShowEntity>>>
+
+    @Mock
+    private lateinit var pagedList: PagedList<TvShowEntity>
 
     @Mock
     private lateinit var mockWebServer: MockWebServer
@@ -69,12 +72,13 @@ class ShowViewModelTest {
         mockWebServer.enqueue(response)
         val mockRespose = response.getBody()?.readUtf8()
 
-        val dummyShows = ApiConfig().getApiService().getListTvShows(BuildConfig.MOVIE_API_KEY).execute().body()?.results
-        val shows = MutableLiveData<List<ResultsItemTvShow>>()
+        val dummyShows = Resource.success(pagedList)
+        `when`(dummyShows.data?.size).thenReturn(20)
+        val shows = MutableLiveData<Resource<PagedList<TvShowEntity>>>()
         shows.value = dummyShows
 
         `when`(filmRepository.getListTvShow()).thenReturn(shows)
-        val showEntity = viewModel.getShows().value
+        val showEntity = viewModel.getShows().value?.data
         verify<FilmRepository>(filmRepository).getListTvShow()
 
         assertNotNull(showEntity)

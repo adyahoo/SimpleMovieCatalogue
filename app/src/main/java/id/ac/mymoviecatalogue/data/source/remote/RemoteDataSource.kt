@@ -84,22 +84,6 @@ class RemoteDataSource private constructor(private val apiConfig: ApiConfig){
         return result
     }
 
-    interface LoadMoviesCallback {
-        fun onAllMoviesReceived(moviesResponse: List<ResultsItemMovie>?)
-    }
-
-    interface LoadTvShowsCallback {
-        fun onAllTvShowReceived(tvShowResponse: List<ResultsItemTvShow>?)
-    }
-
-    interface LoadDetailMovieCallback {
-        fun onDetailMovieReceived(movieDetailResponse: MovieDetailResponse?)
-    }
-
-    interface LoadDetailTvShowCallback {
-        fun onDetailTvShowReceived(tvShowDetailResponse: TvShowDetailResponse?)
-    }
-
     companion object {
         @Volatile
         private var instance: RemoteDataSource? = null
