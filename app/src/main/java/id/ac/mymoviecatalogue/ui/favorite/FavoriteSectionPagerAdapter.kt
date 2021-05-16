@@ -1,27 +1,28 @@
-package id.ac.mymoviecatalogue.ui.home
+package id.ac.mymoviecatalogue.ui.favorite
 
 import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import id.ac.mymoviecatalogue.R
-import id.ac.mymoviecatalogue.ui.movie.MovieFragment
-import id.ac.mymoviecatalogue.ui.show.ShowFragment
+import id.ac.mymoviecatalogue.ui.favorite.fragment.MovieFavoriteFragment
+import id.ac.mymoviecatalogue.ui.favorite.fragment.TvShowFavoriteFragment
 
-class SectionPagerAdapter(private val context: Context, fm: FragmentManager): FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+class FavoriteSectionPagerAdapter(private val context: Context, fm: FragmentManager) :
+    FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     override fun getCount(): Int {
         return 2
     }
 
     override fun getItem(position: Int): Fragment {
-        return when (position) {
-            0 -> MovieFragment()
-            1 -> ShowFragment()
+        return when(position) {
+            0 -> MovieFavoriteFragment()
+            1 -> TvShowFavoriteFragment()
             else -> Fragment()
         }
     }
 
-    override fun getPageTitle(position: Int): CharSequence? {
+    override fun getPageTitle(position: Int): CharSequence {
         return context.resources.getString(TAB_TITLES[position])
     }
 

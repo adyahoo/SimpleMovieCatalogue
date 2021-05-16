@@ -1,8 +1,9 @@
 package id.ac.mymoviecatalogue.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import id.ac.mymoviecatalogue.data.source.FilmRepository
+import id.ac.mymoviecatalogue.data.FilmRepository
 import id.ac.mymoviecatalogue.di.Injection
 import id.ac.mymoviecatalogue.ui.detail.DetailViewModel
 import id.ac.mymoviecatalogue.ui.movie.MovieViewModel
@@ -30,9 +31,9 @@ class ViewModelFactory private constructor(private val filmRepository: FilmRepos
         @Volatile
         private var instance: ViewModelFactory? = null
 
-        fun getInstance(): ViewModelFactory =
+        fun getInstance(context: Context): ViewModelFactory =
                 instance ?: synchronized(this) {
-                    instance ?: ViewModelFactory(Injection.provideRepository()).apply { instance = this }
+                    instance ?: ViewModelFactory(Injection.provideRepository(context)).apply { instance = this }
                 }
     }
 }

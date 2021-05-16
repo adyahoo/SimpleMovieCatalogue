@@ -1,12 +1,52 @@
 package id.ac.mymoviecatalogue.ui.detail
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import id.ac.mymoviecatalogue.data.source.FilmRepository
+import id.ac.mymoviecatalogue.data.FilmRepository
+import id.ac.mymoviecatalogue.data.source.local.entity.TvShowEntity
 import id.ac.mymoviecatalogue.data.source.remote.response.*
+import id.ac.mymoviecatalogue.vo.Resource
 
 class DetailViewModel(private val filmRepository: FilmRepository) : ViewModel() {
-    fun getMovieDetail(movieId: Int): LiveData<MovieDetailResponse> = filmRepository.getDetailMovie(movieId)
+    val movieId = MutableLiveData<Int>()
+    val showId = MutableLiveData<Int>()
 
-    fun getShowDetail(showId: Int): LiveData<TvShowDetailResponse> = filmRepository.getDetailTvShow(showId)
+    fun setSelectedMovie(movieId: Int) {
+        this.movieId.value = movieId
+    }
+
+    fun setSelectedTvShow(showId: Int) {
+        this.showId.value = showId
+    }
+
+    var showDetail = Transformations.switchMap(showId) { mShowId ->
+        filmRepository.getDetailTvShow(mShowId)
+    }
+
+    var movieDetail = Transformations.switchMap(movieId) { mMovieId ->
+        filmRepository.getDetailMovie(mMovieId)
+    }
+
+    fun setFavorite() {
+        val movie = movieDetail.value
+        val show = showDetail.value
+
+        if (movie != null) {
+            val movieDetail = movie.data
+            if (movieDetail != null) {
+                val movieState = movieDetail.isFavorite
+                val newState = !movieState
+                filmRepository.setFavoriteMovie(movieDetail, newState)
+            }
+        }else if (show != null) {
+            val showDetail = show.data
+            if (showDetail != null) {
+                val showState = showDetail.isFavorite
+                val newState = !showState
+                filmRepository.setFavoriteTvShow(showDetail, newState)
+            }
+        }
+    }
 }

@@ -1,17 +1,18 @@
-package id.ac.mymoviecatalogue.ui.show
+package id.ac.mymoviecatalogue.ui.favorite.fragment
 
 import android.os.Bundle
-import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import id.ac.mymoviecatalogue.R
 import id.ac.mymoviecatalogue.databinding.FragmentShowBinding
+import id.ac.mymoviecatalogue.ui.show.ShowAdapter
+import id.ac.mymoviecatalogue.ui.show.ShowViewModel
 import id.ac.mymoviecatalogue.viewmodel.ViewModelFactory
-import id.ac.mymoviecatalogue.vo.Status
 
-class ShowFragment : Fragment() {
+class TvShowFavoriteFragment : Fragment() {
     private lateinit var binding: FragmentShowBinding
     private lateinit var viewModel: ShowViewModel
     private lateinit var showAdapter: ShowAdapter
@@ -32,19 +33,11 @@ class ShowFragment : Fragment() {
             viewModel = ViewModelProvider(this, factory)[ShowViewModel::class.java]
             showAdapter = ShowAdapter()
 
-            viewModel.getShows().observe(viewLifecycleOwner, { shows ->
-                if (shows != null) {
-                    when (shows.status) {
-                        Status.LOADING -> binding.progbarShow.visibility = View.VISIBLE
-                        Status.SUCCESS -> {
-                            binding.progbarShow.visibility = View.GONE
-                            showAdapter.submitList(shows.data)
-                        }
-                        Status.ERROR -> {
-                            binding.progbarShow.visibility = View.GONE
-                            Toast.makeText(context, "Something Wrong", Toast.LENGTH_SHORT).show()
-                        }
-                    }
+            viewModel.getFavoriteTvShows().observe(viewLifecycleOwner, { favShows ->
+                if (favShows.isNotEmpty()) {
+                    showAdapter.submitList(favShows)
+                } else {
+                    binding.tvShowError.visibility = View.VISIBLE
                 }
             })
 

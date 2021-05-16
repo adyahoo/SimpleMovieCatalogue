@@ -1,13 +1,21 @@
 package id.ac.mymoviecatalogue.di
 
-import id.ac.mymoviecatalogue.data.source.FilmRepository
+import android.content.Context
+import id.ac.mymoviecatalogue.data.FilmRepository
+import id.ac.mymoviecatalogue.data.source.local.LocalDataSource
+import id.ac.mymoviecatalogue.data.source.local.room.FilmDatabase
 import id.ac.mymoviecatalogue.data.source.remote.RemoteDataSource
 import id.ac.mymoviecatalogue.data.source.remote.api.ApiConfig
+import id.ac.mymoviecatalogue.utils.AppExecutors
 
 object Injection {
-    fun provideRepository(): FilmRepository {
-        val remoteDataSource = RemoteDataSource.getInstance(ApiConfig())
+    fun provideRepository(context: Context): FilmRepository {
+        val db = FilmDatabase.getInstance(context)
 
-        return FilmRepository.getInstance(remoteDataSource)
+        val remoteDataSource = RemoteDataSource.getInstance(ApiConfig())
+        val localDataSource = LocalDataSource.getInstance(db.filmDao())
+        val appExecutors = AppExecutors()
+
+        return FilmRepository.getInstance(remoteDataSource, localDataSource, appExecutors)
     }
 }

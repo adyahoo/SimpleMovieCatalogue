@@ -1,17 +1,18 @@
-package id.ac.mymoviecatalogue.ui.movie
+package id.ac.mymoviecatalogue.ui.favorite.fragment
 
 import android.os.Bundle
-import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import id.ac.mymoviecatalogue.R
 import id.ac.mymoviecatalogue.databinding.FragmentMovieBinding
+import id.ac.mymoviecatalogue.ui.movie.MovieAdapter
+import id.ac.mymoviecatalogue.ui.movie.MovieViewModel
 import id.ac.mymoviecatalogue.viewmodel.ViewModelFactory
-import id.ac.mymoviecatalogue.vo.Status
 
-class MovieFragment : Fragment() {
+class MovieFavoriteFragment : Fragment() {
     private lateinit var binding: FragmentMovieBinding
     private lateinit var movieAdapter: MovieAdapter
     private lateinit var viewModel: MovieViewModel
@@ -32,19 +33,11 @@ class MovieFragment : Fragment() {
             viewModel = ViewModelProvider(this, factory)[MovieViewModel::class.java]
             movieAdapter = MovieAdapter()
 
-            viewModel.getMovies().observe(viewLifecycleOwner, { movies ->
-                if (movies != null) {
-                    when (movies.status) {
-                        Status.LOADING -> binding.progbarMovie.visibility = View.VISIBLE
-                        Status.SUCCESS -> {
-                            binding.progbarMovie.visibility = View.GONE
-                            movieAdapter.submitList(movies.data)
-                        }
-                        Status.ERROR -> {
-                            binding.progbarMovie.visibility = View.GONE
-                            Toast.makeText(context, "Something Wrong", Toast.LENGTH_SHORT).show()
-                        }
-                    }
+            viewModel.getFavoriteMovies().observe(viewLifecycleOwner, { favMovies ->
+                if (favMovies.isNotEmpty()) {
+                    movieAdapter.submitList(favMovies)
+                } else {
+                    binding.tvMovieError.visibility = View.VISIBLE
                 }
             })
 

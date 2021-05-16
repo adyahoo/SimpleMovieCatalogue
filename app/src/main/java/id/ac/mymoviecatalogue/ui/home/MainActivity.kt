@@ -3,7 +3,9 @@ package id.ac.mymoviecatalogue.ui.home
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import id.ac.mymoviecatalogue.R
 import id.ac.mymoviecatalogue.databinding.ActivityMainBinding
@@ -22,5 +24,17 @@ class MainActivity : AppCompatActivity() {
         binding.homeTabs.setupWithViewPager(binding.homeViewPager)
 
         supportActionBar?.elevation = 0f
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_home, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.action_favorite_section) {
+            startActivity(Intent(this, FavoriteActivity::class.java))
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

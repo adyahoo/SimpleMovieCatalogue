@@ -4,7 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.*
 import com.nhaarman.mockitokotlin2.verify
 import id.ac.mymoviecatalogue.BuildConfig
-import id.ac.mymoviecatalogue.data.source.FilmRepository
+import id.ac.mymoviecatalogue.data.FilmRepository
 import id.ac.mymoviecatalogue.data.source.remote.api.ApiConfig
 import id.ac.mymoviecatalogue.data.source.remote.response.ResultsItemMovie
 import id.ac.mymoviecatalogue.ui.utils.ResponseFileReader

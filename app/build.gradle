@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-parcelize'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -84,11 +85,14 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1"
-    implementation "androidx.activity:activity-ktx:1.2.2"
+    implementation "androidx.activity:activity-ktx:1.2.3"
     implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation 'androidx.paging:paging-runtime-ktx:2.1.2'
 
     //network
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
+    implementation 'androidx.room:room-runtime:2.3.0'
+    kapt 'androidx.room:room-compiler:2.3.0'
 }

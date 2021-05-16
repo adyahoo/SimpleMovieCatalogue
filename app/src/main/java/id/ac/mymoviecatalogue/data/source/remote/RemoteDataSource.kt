@@ -1,5 +1,7 @@
 package id.ac.mymoviecatalogue.data.source.remote
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import id.ac.mymoviecatalogue.BuildConfig
 import id.ac.mymoviecatalogue.data.source.remote.api.ApiConfig
 import id.ac.mymoviecatalogue.data.source.remote.response.*
@@ -10,15 +12,14 @@ import retrofit2.Response
 
 class RemoteDataSource private constructor(private val apiConfig: ApiConfig){
 
-    fun getListMovies(callback: LoadMoviesCallback) {
+    fun getListMovies(): LiveData<ApiResponse<List<ResultsItemMovie>>> {
         val client = apiConfig.getApiService().getListMovies(BuildConfig.MOVIE_API_KEY)
-        val moviesList = ArrayList<ResultsItemMovie>()
+        val result = MutableLiveData<ApiResponse<List<ResultsItemMovie>>>()
         EspressoIdlingResources.increment()
         client.enqueue(object : Callback<MoviesResponse> {
             override fun onResponse(call: Call<MoviesResponse>, response: Response<MoviesResponse>) {
                 if (response.isSuccessful) {
-                    moviesList.addAll(response.body()?.results!!)
-                    callback.onAllMoviesReceived(moviesList)
+                    result.value = ApiResponse.success(response.body()?.results!!)
                     EspressoIdlingResources.decrement()
                 }
             }
@@ -27,17 +28,17 @@ class RemoteDataSource private constructor(private val apiConfig: ApiConfig){
                 t.printStackTrace()
             }
         })
+        return result
     }
 
-    fun getListTvShows(callback: LoadTvShowsCallback) {
+    fun getListTvShows(): LiveData<ApiResponse<List<ResultsItemTvShow>>> {
         val client = apiConfig.getApiService().getListTvShows(BuildConfig.MOVIE_API_KEY)
-        val showList = ArrayList<ResultsItemTvShow>()
+        val result = MutableLiveData<ApiResponse<List<ResultsItemTvShow>>>()
         EspressoIdlingResources.increment()
         client.enqueue(object : Callback<TvShowResponse> {
             override fun onResponse(call: Call<TvShowResponse>, response: Response<TvShowResponse>) {
                 if (response.isSuccessful) {
-                    showList.addAll(response.body()?.results!!)
-                    callback.onAllTvShowReceived(showList)
+                    result.value = ApiResponse.success(response.body()?.results!!)
                     EspressoIdlingResources.decrement()
                 }
             }
@@ -46,16 +47,16 @@ class RemoteDataSource private constructor(private val apiConfig: ApiConfig){
                 t.printStackTrace()
             }
         })
+        return result
     }
 
-    fun getDetailMovie(movieId: Int, callback: LoadDetailMovieCallback) {
+    fun getDetailMovie(movieId: Int): LiveData<ApiResponse<MovieDetailResponse>> {
         val client = apiConfig.getApiService().getMovieDetail(movieId, BuildConfig.MOVIE_API_KEY)
+        val result = MutableLiveData<ApiResponse<MovieDetailResponse>>()
         EspressoIdlingResources.increment()
         client.enqueue(object : Callback<MovieDetailResponse> {
-            lateinit var movieDetail: MovieDetailResponse
             override fun onResponse(call: Call<MovieDetailResponse>, response: Response<MovieDetailResponse>) {
-                movieDetail = response.body()!!
-                callback.onDetailMovieReceived(movieDetail)
+                result.value = ApiResponse.success(response.body() as MovieDetailResponse)
                 EspressoIdlingResources.decrement()
             }
 
@@ -63,16 +64,16 @@ class RemoteDataSource private constructor(private val apiConfig: ApiConfig){
                 t.printStackTrace()
             }
         })
+        return result
     }
 
-    fun getDetailTvShow(showId: Int, callback: LoadDetailTvShowCallback) {
+    fun getDetailTvShow(showId: Int): LiveData<ApiResponse<TvShowDetailResponse>> {
         val client = apiConfig.getApiService().getTvShowDetail(showId, BuildConfig.MOVIE_API_KEY)
+        val result = MutableLiveData<ApiResponse<TvShowDetailResponse>>()
         EspressoIdlingResources.increment()
         client.enqueue(object : Callback<TvShowDetailResponse> {
-            lateinit var showDetail: TvShowDetailResponse
             override fun onResponse(call: Call<TvShowDetailResponse>, response: Response<TvShowDetailResponse>) {
-                showDetail = response.body()!!
-                callback.onDetailTvShowReceived(showDetail)
+                result.value = ApiResponse.success(response.body() as TvShowDetailResponse)
                 EspressoIdlingResources.decrement()
             }
 
@@ -80,6 +81,7 @@ class RemoteDataSource private constructor(private val apiConfig: ApiConfig){
                 t.printStackTrace()
             }
         })
+        return result
     }
 
     interface LoadMoviesCallback {

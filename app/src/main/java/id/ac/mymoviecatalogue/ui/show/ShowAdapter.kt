@@ -3,23 +3,17 @@ package id.ac.mymoviecatalogue.ui.show
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagedListAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import id.ac.mymoviecatalogue.BuildConfig
 import id.ac.mymoviecatalogue.R
-import id.ac.mymoviecatalogue.data.TvShowEntity
+import id.ac.mymoviecatalogue.data.source.local.entity.TvShowEntity
 import id.ac.mymoviecatalogue.databinding.ItemDataBinding
 import id.ac.mymoviecatalogue.ui.detail.DetailActivity
 
-class ShowAdapter: RecyclerView.Adapter<ShowAdapter.ShowViewHolder>() {
-    private var listShows = ArrayList<TvShowEntity>()
-
-    fun setShow(tvShow: List<TvShowEntity>) {
-        listShows.clear()
-        listShows.addAll(tvShow)
-        notifyDataSetChanged()
-    }
-
+class ShowAdapter: PagedListAdapter<TvShowEntity, ShowAdapter.ShowViewHolder>(DIFF_CALLBACK) {
     inner class ShowViewHolder(private val binding: ItemDataBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(tvShow: TvShowEntity) {
             with(binding) {
@@ -45,14 +39,19 @@ class ShowAdapter: RecyclerView.Adapter<ShowAdapter.ShowViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ShowViewHolder, position: Int) {
-        holder.bind(listShows[position])
-    }
-
-    override fun getItemCount(): Int {
-        return listShows.size
+        holder.bind(getItem(position) as TvShowEntity)
     }
 
     companion object{
         const val EXTRA_SHOW = "show"
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<TvShowEntity>() {
+            override fun areItemsTheSame(oldItem: TvShowEntity, newItem: TvShowEntity): Boolean {
+                return oldItem.showId == newItem.showId
+            }
+
+            override fun areContentsTheSame(oldItem: TvShowEntity, newItem: TvShowEntity): Boolean {
+                return oldItem == newItem
+            }
+        }
     }
 }

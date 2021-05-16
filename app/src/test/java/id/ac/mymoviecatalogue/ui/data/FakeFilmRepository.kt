@@ -2,7 +2,7 @@ package id.ac.mymoviecatalogue.ui.data
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import id.ac.mymoviecatalogue.data.source.FilmDataSource
+import id.ac.mymoviecatalogue.data.FilmDataSource
 import id.ac.mymoviecatalogue.data.source.remote.RemoteDataSource
 import id.ac.mymoviecatalogue.data.source.remote.response.*
 
