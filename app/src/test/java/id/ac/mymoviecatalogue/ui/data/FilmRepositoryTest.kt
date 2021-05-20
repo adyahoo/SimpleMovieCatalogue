@@ -1,37 +1,66 @@
 package id.ac.mymoviecatalogue.ui.data
 
+import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.verify
 import id.ac.mymoviecatalogue.BuildConfig
 import id.ac.mymoviecatalogue.data.source.local.LocalDataSource
 import id.ac.mymoviecatalogue.data.source.local.entity.MoviesEntity
 import id.ac.mymoviecatalogue.data.source.local.entity.TvShowEntity
+import id.ac.mymoviecatalogue.data.source.local.room.FilmDao
+import id.ac.mymoviecatalogue.data.source.local.room.FilmDatabase
 import id.ac.mymoviecatalogue.data.source.remote.RemoteDataSource
 import id.ac.mymoviecatalogue.data.source.remote.api.ApiConfig
 import id.ac.mymoviecatalogue.ui.utils.PagedListUtils
 import id.ac.mymoviecatalogue.utils.AppExecutors
+import id.ac.mymoviecatalogue.utils.DataDummy
 import id.ac.mymoviecatalogue.vo.Resource
+import org.junit.After
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.Mockito.`when`
+import org.junit.runner.RunWith
+import org.mockito.Mockito.*
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
-import org.mockito.Mockito.mock
-
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [29])
 class FilmRepositoryTest {
     private val remote = mock(RemoteDataSource::class.java)
     private val local = mock(LocalDataSource::class.java)
     private val appExecutors = mock(AppExecutors::class.java)
     private val filmRepository = FakeFilmRepository(remote, local, appExecutors)
 
+    private lateinit var executors: AppExecutors
+    private lateinit var filmDao: FilmDao
+    private lateinit var db: FilmDatabase
+
     private val movieId = 460465
     private val showId = 60735
 
     @get:Rule
-    var instantTaskExecutorRule: TestRule = InstantTaskExecutorRule()
+    var instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    @Before
+    fun setUp() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        db = Room.inMemoryDatabaseBuilder(context, FilmDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
+        filmDao = db.filmDao()
+        executors = AppExecutors()
+    }
+
+    @After
+    fun tearDown() {
+        db.close()
+    }
 
     @Test
     fun getListMovies() {
@@ -112,5 +141,49 @@ class FilmRepositoryTest {
         verify(local).getFavoriteTvShows()
         assertNotNull(favShows)
         assertEquals(listShows.size, favShows?.size)
+    }
+
+    @Test
+    fun setFavoriteMovie() {
+        val movie = DataDummy.generateDummyMovie()
+
+        executors.diskIO().execute {
+            doNothing().`when`(local).setFavoriteMovie(movie, true)
+            filmRepository.setFavoriteMovie(movie, true)
+            verify(local, times(1)).setFavoriteMovie(movie, true)
+        }
+    }
+
+    @Test
+    fun deleteFavoriteMovie() {
+        val movie = DataDummy.generateDummyMovie()
+
+        executors.diskIO().execute {
+            doNothing().`when`(local).setFavoriteMovie(movie, false)
+            filmRepository.setFavoriteMovie(movie, false)
+            verify(local, times(1)).setFavoriteMovie(movie, false)
+        }
+    }
+
+    @Test
+    fun setFavoriteTvShow() {
+        val show = DataDummy.generateDummyTvShow()
+
+        executors.diskIO().execute {
+            doNothing().`when`(local).setFavoriteTvShow(show, true)
+            filmRepository.setFavoriteTvShow(show, true)
+            verify(local, times(1)).setFavoriteTvShow(show, true)
+        }
+    }
+
+    @Test
+    fun deleteFavoriteTvShow() {
+        val show = DataDummy.generateDummyTvShow()
+
+        executors.diskIO().execute {
+            doNothing().`when`(local).setFavoriteTvShow(show, false)
+            filmRepository.setFavoriteTvShow(show, false)
+            verify(local, times(1)).setFavoriteTvShow(show, false)
+        }
     }
 }

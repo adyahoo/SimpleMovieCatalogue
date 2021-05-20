@@ -3,11 +3,13 @@ package id.ac.mymoviecatalogue.ui.detail
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.verify
 import id.ac.mymoviecatalogue.data.FilmRepository
 import id.ac.mymoviecatalogue.data.source.local.entity.MoviesEntity
 import id.ac.mymoviecatalogue.data.source.local.entity.TvShowEntity
 import id.ac.mymoviecatalogue.ui.utils.ResponseFileReader
+import id.ac.mymoviecatalogue.utils.DataDummy
 import id.ac.mymoviecatalogue.vo.Resource
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
@@ -18,6 +20,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.times
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 
@@ -97,5 +100,41 @@ class DetailViewModelTest {
 
         viewModel.showDetail.observeForever(showObserver)
         verify(showObserver).onChanged(dummyShows)
+    }
+
+    @Test
+    fun setFavoriteMovie() {
+        val movieEntity = DataDummy.generateDummyMovie()
+
+        filmRepository.setFavoriteMovie(movieEntity, true)
+        viewModel.setFavorite()
+        verify(filmRepository, times(1)).setFavoriteMovie(movieEntity, true)
+    }
+
+    @Test
+    fun deleteFavoriteMovie() {
+        val movieEntity = DataDummy.generateDummyMovie()
+
+        filmRepository.setFavoriteMovie(movieEntity, false)
+        viewModel.setFavorite()
+        verify(filmRepository, times(1)).setFavoriteMovie(movieEntity, false)
+    }
+
+    @Test
+    fun setFavoriteTvShow() {
+        val showEntity = DataDummy.generateDummyTvShow()
+
+        filmRepository.setFavoriteTvShow(showEntity, true)
+        viewModel.setFavorite()
+        verify(filmRepository, times(1)).setFavoriteTvShow(showEntity, true)
+    }
+
+    @Test
+    fun deleteFavoriteTvShow() {
+        val showEntity = DataDummy.generateDummyTvShow()
+
+        filmRepository.setFavoriteTvShow(showEntity, false)
+        viewModel.setFavorite()
+        verify(filmRepository, times(1)).setFavoriteTvShow(showEntity, false)
     }
 }
